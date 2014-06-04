@@ -1,0 +1,13 @@
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_client
+
+platforms:
+  - name: ubuntu-12.04
+
+suites: 
+  - name: host
+    run_list:
+      - recipe[dockercon-demo::host]

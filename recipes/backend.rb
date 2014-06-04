@@ -24,10 +24,46 @@
 # limitations under the License.
 #
 
-::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
 ::Chef::Recipe.send(:include, Wordpress::Helpers)
 
-node.set_unless['dockercon-demo']['db']['pass'] = secure_password
+##
+# Add hints file
+# This will make the backend nodes ip address available to the container
+#
+backend_host = search(:node, "name:backend_host")
+host_ip = backend_host[0]['ipaddress']
+
+ohai_hint "docker_container" do
+  content Hash[:host, Hash[:ipaddress, host_ip]]
+end.run_action(:create)
+
+##
+# Add Docker Ohai Plugin
+#
+cookbook_file "#{node['ohai']['plugin_path']}/docker_container.rb" do
+  source "plugins/docker_container.rb"
+  owner "root"
+  group node['root_group']
+  mode "0755"
+end
+
+ohai 'reload_docker' do
+  plugin 'docker_container'
+  action :reload
+end
+
+include_recipe 'ohai'
+
+
+##
+# Grab passwords from encrypted data bag
+#
+password = Chef::EncryptedDataBagItem.load("passwords", "demo")
+node.default['dockercon-demo']['db']['pass'] = password['mysql']['wordpress']
+node.default['mysql']['server_debian_password'] = password['mysql']['debian']
+node.default['mysql']['server_root_password'] = password['mysql']['root']
+node.default['mysql']['server_repl_password'] = password['mysql']['repl']
+
 tag('available') unless tagged?('unavailable')
 node.save unless Chef::Config[:solo]
 
@@ -35,6 +71,7 @@ db = node['dockercon-demo']['db']
 
 if is_local_host? db['host']
   include_recipe "mysql::server"
+  include_recipe "mysql::ruby"
 
   mysql_connection_info = {
     :host     => 'localhost',
@@ -68,5 +105,5 @@ end
 # Override MySQL Service
 #
 container_service 'mysql' do
-  command "mysqld_safe"
+  command "/usr/sbin/mysqld -u mysql"
 end

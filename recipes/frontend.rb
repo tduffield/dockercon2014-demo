@@ -72,8 +72,8 @@ backend.tag('unavailable')
 backend.save
 
 # Set db_host to be the published port of the MySQL service
-db_host_ip = backend['docker_container']['host']['ip_address']
-db_host_port = backend['docker_container']['HostConfig']['PortBindings']['3307/tcp'][0]['HostPort'] 
+db_host_ip = backend['docker_container']['host']['ipaddress']
+db_host_port = backend['docker_container']['HostConfig']['PortBindings']['3306/tcp'][0]['HostPort'] 
 node.set_unless['docker-demo']['db']['host'] = "#{db_host_ip}:#{db_host_port}"
 
 ##

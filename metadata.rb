@@ -10,4 +10,5 @@ depends "ohai", "= 2.0.0"
 depends "openssl", "= 1.1.0"
 depends "database", "= 1.5.2"
 depends "tar", "= 0.3.2"
-
+depends "ntp", "= 1.6.2"
+depends "chef-sugar", "= 1.3.0"
