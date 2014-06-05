@@ -23,12 +23,11 @@
 ##
 # Include Dependencies
 #
+include_recipe "apt"
 include_recipe "php"
 include_recipe "php::module_mysql"
 include_recipe "apache2"
 include_recipe "apache2::mod_php5"
-include_recipe "mysql::client"
-include_recipe "mysql::ruby"
 
 ##
 # Install Wordpress
@@ -63,18 +62,34 @@ end
 ##
 # Find and establish connection to backend
 #
-available_backends = search(:node, "tags:available AND recipes:docker-demo::backend")
-backend = available_backends[0]
+backends = search(:node, 'recipes:dockercon-demo\:\:backend')
+if backends.empty?
+  node.default['dockercon-demo']['db']['host'] = "localhost"
+else
+  if node['dockercon-demo']['db']['host'].nil?
+    backends_in_use = []
 
-# Mark the backend as unavailable
-backend.untag('available')
-backend.tag('unavailable')
-backend.save
+    # Find which backends are being used
+    search(:node, 'recipes:dockercon-demo\:\:frontend') do |frontend|
+      backend = frontend['tags'].find { |e| /backend\d/ =~ e } 
+      backends_in_use << backend unless backend.nil?
+    end
 
-# Set db_host to be the published port of the MySQL service
-db_host_ip = backend['docker_container']['host']['ipaddress']
-db_host_port = backend['docker_container']['HostConfig']['PortBindings']['3306/tcp'][0]['HostPort'] 
-node.set_unless['docker-demo']['db']['host'] = "#{db_host_ip}:#{db_host_port}"
+    # find which backend are avaiable
+    available_backends = backends - backends_in_use
+    backend = available_backends[0]
+
+    # Mark the backend as unavailable
+    tag("#{backend.name}")
+    node.save
+
+    # Set db_host to be the published port of the MySQL service
+    db_host_ip = backend['docker_container']['host']['ipaddress']
+    db_host_port = backend['docker_container']['HostConfig']['PortBindings']['3306/tcp'][0]['HostPort'] 
+    node.default['dockercon-demo']['db']['host'] = "#{db_host_ip}:#{db_host_port}"
+    node.default['dockercon-demo']['db']['pass'] = backend['dockercon-demo']['db']['pass']
+  end
+end
 
 ##
 # Configure Wordpress
@@ -119,6 +134,6 @@ end
 ##
 # Override Apache Service
 #
-container_service 'apache' do
-  command "/usr/sbin/apache2 -D FORGROUND"
+container_service 'apache2' do
+  command "/usr/sbin/apache2 -D FOREGROUND"
 end

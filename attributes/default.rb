@@ -32,7 +32,7 @@ default['dockercon-demo']['db']['name'] = "wordpressdb"
 default['dockercon-demo']['db']['user'] = "wordpressuser"
 default['dockercon-demo']['db']['pass'] = nil
 default['dockercon-demo']['db']['prefix'] = 'wp_'
-default['dockercon-demo']['db']['host'] = 'localhost'
+default['dockercon-demo']['db']['host'] = nil
 
 default['dockercon-demo']['allow_multisite'] = false
 

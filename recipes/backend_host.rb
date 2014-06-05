@@ -2,6 +2,9 @@ include_recipe "ntp"
 include_recipe "chef-sugar"
 include_recipe "docker"
 
+##
+# Setup Vagrant Ohai plugin to use eth1
+#
 if vagrant?
   ohai 'reload_vagrant' do
     plugin 'vagrant_eth1'
@@ -18,12 +21,14 @@ if vagrant?
   include_recipe 'ohai'
 end
 
-docker_image 'tduffield/wp_backend'
-
-for i in 1..1
+##
+# Launch Backend Containers
+#
+docker_image 'chef/wp_backend'
+for i in 1..10
   docker_container "backend#{i}" do
     container_name "backend#{i}"
-    image "tduffield/wp_backend"
+    image "chef/wp_backend"
     detach true
     publish_exposed_ports true
     hostname "backend#{i}"

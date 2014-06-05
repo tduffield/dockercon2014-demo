@@ -1,5 +1,6 @@
 require 'net/http'
 require 'socket'
+require 'docker'
 
 class String
   def underscore
@@ -13,42 +14,20 @@ end
 
 module DockerContainerMetadata
 
-  DOCKER_METADATA_ADDR = "unix:///run/docker.sock" unless defined?(DOCKER_METADATA_ADDR)
+  DOCKER_METADATA_ADDR = "unix:///var/run/docker.sock" unless defined?(DOCKER_METADATA_ADDR)
 
   ##
   # Test connection to Docker Remote API socket
   #
-  def can_metadata_connect?(addr=DOCKER_METADATA_ADDR, port=nil, timeout=2)
-    t = Socket.new(Socket::Constants::AF_INET, Socket::Constants::SOCK_STREAM, 0)
-    saddr = Socket.pack_sockaddr_un(DOCKER_METADATA_ADDR)
-    connected = false
-
-    begin
-      t.connect_nonblock(saddr)
-    rescue Errno::EINPROGRESS
-      r,w,e = IO.select(nil,[t],nil,timeout)
-      if !w.nil?
-        connected = true
-      else
-        begin
-          t.connect_nonblock(saddr)
-        rescue Errno::EISCONN
-          t.close
-          connected = true
-        end
-      end
-    rescue SystemCallError
-    end
-    Ohai::Log.debug("can_metadata_connect? == #{connected}")
-    connected
+  def can_metadata_connect?
+    !!Docker.version
   end
 
   ##
   # Is there a container in the API that matches the current node?
   #
   def can_find_container?
-    response = request("/containers/#{container_id}/json")
-    response.code == '200'
+    !!Docker::Container.get(container_id)
   end
 
   ##
@@ -59,12 +38,7 @@ module DockerContainerMetadata
   end
 
   def fetch_metadata
-    response = request("/containers/#{container_id}/json")
-    return nil unless response.code == "200"
-
-    data = StringIO.new(response.body)
-    parser = Yajl::Parser.new
-    parser.parse(data)
+    return Docker::Container.get(container_id).json
   end
 
   ##
@@ -79,6 +53,8 @@ module DockerContainerMetadata
       response = Net::HTTPResponse.read_new(socket)
     end while response.kind_of?(Net::HTTPContinue)
     response.reading_body(socket, request.response_body_permitted?) {}
+
+    puts response.body
     
     return {
       :body => response.body,
@@ -101,10 +77,19 @@ Ohai.plugin(:DockerContainer) do
   # http://docs.docker.io/reference/api/docker_remote_api_v1.11/#inspect-a-container
   #
   collect_data do
+    metadata_from_hints = hint?('docker_container')
+
     if looks_like_docker?
       Ohai::Log.debug("looks_like_docker? == true")
       docker_container Mash.new
-      fetch_metadata.each { |k,v| docker_container[k] = v }
+
+      if metadata_from_hints
+        Ohai::Log.debug("docker_container hints present")
+        metadata_from_hints.each { |k,v| docker_container[k] = v }
+      end
+      container = Docker::Container.get(container_id).json
+
+      container.each { |k,v| docker_container[k] = v }
     else
       Ohai::Log.debug("looks_like_docker? == false")
       false
