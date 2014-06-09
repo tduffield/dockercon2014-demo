@@ -6,8 +6,8 @@ Vagrant.configure("2") do |config|
     front.vm.box = "chef/ubuntu-12.04"
     front.vm.provider "virtualbox" do |v|
       v.name = "frontend_host"
-      v.memory = 1024
-      v.cpus = 2
+      v.memory = 2048
+      v.cpus = 4
     end
     front.vm.network "private_network", type: 'dhcp'
     for i in 49153..49170
@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
     backend.vm.provider "virtualbox" do |v|
       v.name = "backend_host"
       v.memory = 2048
-      v.cpus = 2
+      v.cpus = 4
     end
     backend.vm.network "private_network", type: 'dhcp'
     backend.vm.provision "chef_client" do |chef|

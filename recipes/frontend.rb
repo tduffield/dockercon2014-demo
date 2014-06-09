@@ -70,17 +70,18 @@ else
     backends_in_use = []
 
     # Find which backends are being used
-    search(:node, 'recipes:dockercon-demo\:\:frontend') do |frontend|
+    search(:node, 'recipes:dockercon-demo\:\:frontend').each do |frontend|
       backend = frontend['tags'].find { |e| /backend\d/ =~ e } 
       backends_in_use << backend unless backend.nil?
     end
 
     # find which backend are avaiable
-    available_backends = backends - backends_in_use
+    available_backends = backends.delete_if { |b| backends_in_use.include?(b.name) }
     backend = available_backends[0]
 
+
     # Mark the backend as unavailable
-    tag("#{backend.name}")
+    tag(backend.name)
     node.save
 
     # Set db_host to be the published port of the MySQL service

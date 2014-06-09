@@ -25,7 +25,7 @@ end
 # Launch Backend Containers
 #
 docker_image 'chef/wp_backend'
-for i in 1..10
+for i in 1..3
   docker_container "backend#{i}" do
     container_name "backend#{i}"
     image "chef/wp_backend"

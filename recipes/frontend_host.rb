@@ -36,7 +36,7 @@ for i in 1..1
       "/var/run/docker.sock:/var/run/docker.sock"
     ]
 
-    action :run
+    action :nothing
   end
 end
 
