@@ -25,6 +25,9 @@
 # limitations under the License.
 #
 
+default['container_service']['apache2']['command'] = "/usr/sbin/apache2 -D FOREGROUND"
+default['container_service']['mysql']['command'] = "/usr/sbin/mysqld -u mysql"
+
 # General settings
 default['docker-demo']['version'] = 'latest'
 

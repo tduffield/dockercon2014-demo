@@ -131,10 +131,3 @@ web_app "wordpress" do
   server_port node['apache']['listen_ports']
   enable true
 end
-
-##
-# Override Apache Service
-#
-container_service 'apache2' do
-  command "/usr/sbin/apache2 -D FOREGROUND"
-end

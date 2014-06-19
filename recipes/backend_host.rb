@@ -4,7 +4,9 @@ include_recipe "docker-demo::_setup"
 include_recipe "docker"
 
 # Download Backend Docker Image
-docker_image 'chefdemo/wp_backend'
+docker_image 'chefdemo/wp_backend' do
+  action :nothing
+end
 
 # Launch Backend Docker Containers
 for i in 1..3
@@ -18,6 +20,6 @@ for i in 1..3
       "/var/run/docker.sock:/var/run/docker.sock"
     ]
 
-    action :run
+    action :nothing
   end
 end

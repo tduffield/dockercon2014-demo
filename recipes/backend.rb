@@ -102,10 +102,3 @@ mysql_database_user db['user'] do
   host          '%'
   action        :grant
 end
-
-##
-# Override MySQL Service
-#
-container_service 'mysql' do
-  command "/usr/sbin/mysqld -u mysql"
-end
