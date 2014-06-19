@@ -1,8 +1,8 @@
 #
-# Cookbook Name:: dockercon-demo
+# Cookbook Name:: docker-demo
 # Recipe:: backend
 # Author:: Tom Duffield (<tom@getchef.com>)
-# 
+#
 # Original Cookbook Name:: wordpress
 # Recipe:: database
 # Author:: Lucas Hansen (<lucash@opscode.com>)
@@ -62,13 +62,13 @@ include_recipe 'ohai'
 # Grab passwords from encrypted data bag
 #
 password = Chef::EncryptedDataBagItem.load("passwords", "demo")
-node.normal['dockercon-demo']['db']['pass'] = password['mysql']['wordpress']
+node.normal['docker-demo']['db']['pass'] = password['mysql']['wordpress']
 node.normal['mysql']['server_debian_password'] = password['mysql']['debian']
 node.normal['mysql']['server_root_password'] = password['mysql']['root']
 node.normal['mysql']['server_repl_password'] = password['mysql']['repl']
 node.save unless Chef::Config[:solo]
 
-db = node['dockercon-demo']['db']
+db = node['docker-demo']['db']
 
 node.normal['mysql']['bind_address'] = '0.0.0.0'
 node.normal['mysql']['allow_remote_root'] = true
@@ -109,7 +109,3 @@ end
 container_service 'mysql' do
   command "/usr/sbin/mysqld -u mysql"
 end
-
-
-
-

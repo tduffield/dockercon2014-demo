@@ -18,10 +18,10 @@ Vagrant.configure("2") do |config|
       chef.validation_key_path = "#{ENV['HOME']}/.chef/dockercon2014-validator.pem"
       chef.validation_client_name = "dockercon2014-validator"
       chef.node_name = "frontend_host"
-      chef.add_recipe "dockercon-demo::frontend_host"
+      chef.add_recipe "docker-demo::frontend_host"
     end
   end
-  
+
   config.vm.define "backend_host" do |backend|
     backend.vm.box = "chef/ubuntu-12.04"
     backend.vm.provider "virtualbox" do |v|
@@ -35,7 +35,7 @@ Vagrant.configure("2") do |config|
       chef.validation_key_path = "#{ENV['HOME']}/.chef/dockercon2014-validator.pem"
       chef.validation_client_name = "dockercon2014-validator"
       chef.node_name = "backend_host"
-      chef.add_recipe "dockercon-demo::backend_host"
+      chef.add_recipe "docker-demo::backend_host"
     end
   end
 end

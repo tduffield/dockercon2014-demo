@@ -1,4 +1,4 @@
-name 'dockercon-demo'
+name 'docker-demo'
 version '0.0.1'
 
 # This cookbook is based heavily on http://community.opscode.com/cookbooks/wordpress

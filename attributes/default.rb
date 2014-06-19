@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: dockercon-demo
+# Cookbook Name:: docker-demo
 # Attributes:: default
 # Author:: Tom Duffield (<tom@getchef.com>)
 #
@@ -26,51 +26,51 @@
 #
 
 # General settings
-default['dockercon-demo']['version'] = 'latest'
+default['docker-demo']['version'] = 'latest'
 
-default['dockercon-demo']['db']['name'] = "wordpressdb"
-default['dockercon-demo']['db']['user'] = "wordpressuser"
-default['dockercon-demo']['db']['pass'] = nil
-default['dockercon-demo']['db']['prefix'] = 'wp_'
-default['dockercon-demo']['db']['host'] = nil
+default['docker-demo']['db']['name'] = "wordpressdb"
+default['docker-demo']['db']['user'] = "wordpressuser"
+default['docker-demo']['db']['pass'] = nil
+default['docker-demo']['db']['prefix'] = 'wp_'
+default['docker-demo']['db']['host'] = nil
 
-default['dockercon-demo']['allow_multisite'] = false
+default['docker-demo']['allow_multisite'] = false
 
-default['dockercon-demo']['server_aliases'] = [node['fqdn']]
+default['docker-demo']['server_aliases'] = [node['fqdn']]
 
-default['dockercon-demo']['install']['user'] = node['apache']['user']
-default['dockercon-demo']['install']['group'] = node['apache']['group']
+default['docker-demo']['install']['user'] = node['apache']['user']
+default['docker-demo']['install']['group'] = node['apache']['group']
 
 # Languages
-default['dockercon-demo']['languages']['lang'] = ''
-default['dockercon-demo']['languages']['version'] = ''
-default['dockercon-demo']['languages']['repourl'] = 'http://translate.wordpress.org/projects/wp'
-default['dockercon-demo']['languages']['projects'] = ['main', 'admin', 'admin_network', 'continents_cities']
-default['dockercon-demo']['languages']['themes'] = []
-default['dockercon-demo']['languages']['project_pathes'] = {
+default['docker-demo']['languages']['lang'] = ''
+default['docker-demo']['languages']['version'] = ''
+default['docker-demo']['languages']['repourl'] = 'http://translate.wordpress.org/projects/wp'
+default['docker-demo']['languages']['projects'] = ['main', 'admin', 'admin_network', 'continents_cities']
+default['docker-demo']['languages']['themes'] = []
+default['docker-demo']['languages']['project_pathes'] = {
   'main'              => '/',
   'admin'             => '/admin/',
   'admin_network'     => '/admin/network/',
   'continents_cities' => '/cc/'
 }
 %w{ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty}.each do |year|
-  default['dockercon-demo']['languages']['project_pathes']["twenty#{year}"] = "/twenty#{year}/"
+  default['docker-demo']['languages']['project_pathes']["twenty#{year}"] = "/twenty#{year}/"
 end
-node['dockercon-demo']['languages']['project_pathes'].each do |project,project_path|
+node['docker-demo']['languages']['project_pathes'].each do |project,project_path|
   # http://translate.wordpress.org/projects/wp/3.5.x/admin/network/ja/default/export-translations?format=mo
-  default['dockercon-demo']['languages']['urls'][project] =
-    node['dockercon-demo']['languages']['repourl'] + '/' +
-    node['dockercon-demo']['languages']['version'] + project_path +
-    node['dockercon-demo']['languages']['lang'] + '/default/export-translations?format=mo'
+  default['docker-demo']['languages']['urls'][project] =
+    node['docker-demo']['languages']['repourl'] + '/' +
+    node['docker-demo']['languages']['version'] + project_path +
+    node['docker-demo']['languages']['lang'] + '/default/export-translations?format=mo'
 end
 
 if node['platform'] == 'windows'
-  default['dockercon-demo']['parent_dir'] = "#{ENV['SystemDrive']}\\inetpub"
-  default['dockercon-demo']['dir'] = "#{node['dockercon-demo']['parent_dir']}\\wordpress"
-  default['dockercon-demo']['url'] = "https://wordpress.org/wordpress-#{node['dockercon-demo']['version']}.zip"
+  default['docker-demo']['parent_dir'] = "#{ENV['SystemDrive']}\\inetpub"
+  default['docker-demo']['dir'] = "#{node['docker-demo']['parent_dir']}\\wordpress"
+  default['docker-demo']['url'] = "https://wordpress.org/wordpress-#{node['docker-demo']['version']}.zip"
 else
-  default['dockercon-demo']['server_name'] = node['fqdn']
-  default['dockercon-demo']['parent_dir'] = '/var/www'
-  default['dockercon-demo']['dir'] = "#{node['dockercon-demo']['parent_dir']}/wordpress"
-  default['dockercon-demo']['url'] = "https://wordpress.org/wordpress-#{node['dockercon-demo']['version']}.tar.gz"
+  default['docker-demo']['server_name'] = node['fqdn']
+  default['docker-demo']['parent_dir'] = '/var/www'
+  default['docker-demo']['dir'] = "#{node['docker-demo']['parent_dir']}/wordpress"
+  default['docker-demo']['url'] = "https://wordpress.org/wordpress-#{node['docker-demo']['version']}.tar.gz"
 end

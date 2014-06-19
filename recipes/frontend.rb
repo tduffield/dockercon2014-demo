@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: docekrcon-demo
+# Cookbook Name:: dockercon-demo
 # Recipe:: frontend
 #
 # Original Cookbook Name:: wordpress
@@ -33,45 +33,45 @@ include_recipe "apache2::mod_php5"
 # Install Wordpress
 #
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
-node.set_unless['dockercon-demo']['keys']['auth'] = secure_password
-node.set_unless['dockercon-demo']['keys']['secure_auth'] = secure_password
-node.set_unless['dockercon-demo']['keys']['logged_in'] = secure_password
-node.set_unless['dockercon-demo']['keys']['nonce'] = secure_password
-node.set_unless['dockercon-demo']['salt']['auth'] = secure_password
-node.set_unless['dockercon-demo']['salt']['secure_auth'] = secure_password
-node.set_unless['dockercon-demo']['salt']['logged_in'] = secure_password
-node.set_unless['dockercon-demo']['salt']['nonce'] = secure_password
+node.set_unless['docker-demo']['keys']['auth'] = secure_password
+node.set_unless['docker-demo']['keys']['secure_auth'] = secure_password
+node.set_unless['docker-demo']['keys']['logged_in'] = secure_password
+node.set_unless['docker-demo']['keys']['nonce'] = secure_password
+node.set_unless['docker-demo']['salt']['auth'] = secure_password
+node.set_unless['docker-demo']['salt']['secure_auth'] = secure_password
+node.set_unless['docker-demo']['salt']['logged_in'] = secure_password
+node.set_unless['docker-demo']['salt']['nonce'] = secure_password
 node.save unless Chef::Config[:solo]
 
-directory node['dockercon-demo']['dir'] do
+directory node['docker-demo']['dir'] do
   action :create
   recursive true
-  owner node['dockercon-demo']['install']['user']
-  group node['dockercon-demo']['install']['group']
+  owner node['docker-demo']['install']['user']
+  group node['docker-demo']['install']['group']
   mode  '00755'
 end
 
-tar_extract node['dockercon-demo']['url'] do
-  target_dir node['dockercon-demo']['dir']
-  creates File.join(node['dockercon-demo']['dir'], 'index.php')
-  user node['dockercon-demo']['install']['user']
-  group node['dockercon-demo']['install']['group']
+tar_extract node['docker-demo']['url'] do
+  target_dir node['docker-demo']['dir']
+  creates File.join(node['docker-demo']['dir'], 'index.php')
+  user node['docker-demo']['install']['user']
+  group node['docker-demo']['install']['group']
   tar_flags [ '--strip-components 1' ]
 end
 
 ##
 # Find and establish connection to backend
 #
-backends = search(:node, 'recipes:dockercon-demo\:\:backend')
+backends = search(:node, 'recipes:docker-demo\:\:backend')
 if backends.empty?
-  node.default['dockercon-demo']['db']['host'] = "localhost"
+  node.default['docker-demo']['db']['host'] = "localhost"
 else
-  if node['dockercon-demo']['db']['host'].nil?
+  if node['docker-demo']['db']['host'].nil?
     backends_in_use = []
 
     # Find which backends are being used
-    search(:node, 'recipes:dockercon-demo\:\:frontend').each do |frontend|
-      backend = frontend['tags'].find { |e| /backend\d/ =~ e } 
+    search(:node, 'recipes:docker-demo\:\:frontend').each do |frontend|
+      backend = frontend['tags'].find { |e| /backend\d/ =~ e }
       backends_in_use << backend unless backend.nil?
     end
 
@@ -86,37 +86,37 @@ else
 
     # Set db_host to be the published port of the MySQL service
     db_host_ip = backend['docker_container']['host']['ipaddress']
-    db_host_port = backend['docker_container']['HostConfig']['PortBindings']['3306/tcp'][0]['HostPort'] 
-    node.default['dockercon-demo']['db']['host'] = "#{db_host_ip}:#{db_host_port}"
-    node.default['dockercon-demo']['db']['pass'] = backend['dockercon-demo']['db']['pass']
+    db_host_port = backend['docker_container']['HostConfig']['PortBindings']['3306/tcp'][0]['HostPort']
+    node.default['docker-demo']['db']['host'] = "#{db_host_ip}:#{db_host_port}"
+    node.default['docker-demo']['db']['pass'] = backend['dockercon-demo']['db']['pass']
   end
 end
 
 ##
 # Configure Wordpress
 #
-template "#{node['dockercon-demo']['dir']}/wp-config.php" do
+template "#{node['docker-demo']['dir']}/wp-config.php" do
   source 'wp-config.php.erb'
   mode 0644
   variables(
-    :db_name          => node['dockercon-demo']['db']['name'],
-    :db_user          => node['dockercon-demo']['db']['user'],
-    :db_password      => node['dockercon-demo']['db']['pass'],
-    :db_host          => node['dockercon-demo']['db']['host'],
-    :db_prefix        => node['dockercon-demo']['db']['prefix'],
-    :auth_key         => node['dockercon-demo']['keys']['auth'],
-    :secure_auth_key  => node['dockercon-demo']['keys']['secure_auth'],
-    :logged_in_key    => node['dockercon-demo']['keys']['logged_in'],
-    :nonce_key        => node['dockercon-demo']['keys']['nonce'],
-    :auth_salt        => node['dockercon-demo']['salt']['auth'],
-    :secure_auth_salt => node['dockercon-demo']['salt']['secure_auth'],
-    :logged_in_salt   => node['dockercon-demo']['salt']['logged_in'],
-    :nonce_salt       => node['dockercon-demo']['salt']['nonce'],
-    :lang             => node['dockercon-demo']['languages']['lang'],
-    :allow_multisite  => node['dockercon-demo']['allow_multisite']
+    :db_name          => node['docker-demo']['db']['name'],
+    :db_user          => node['docker-demo']['db']['user'],
+    :db_password      => node['docker-demo']['db']['pass'],
+    :db_host          => node['docker-demo']['db']['host'],
+    :db_prefix        => node['docker-demo']['db']['prefix'],
+    :auth_key         => node['docker-demo']['keys']['auth'],
+    :secure_auth_key  => node['docker-demo']['keys']['secure_auth'],
+    :logged_in_key    => node['docker-demo']['keys']['logged_in'],
+    :nonce_key        => node['docker-demo']['keys']['nonce'],
+    :auth_salt        => node['docker-demo']['salt']['auth'],
+    :secure_auth_salt => node['docker-demo']['salt']['secure_auth'],
+    :logged_in_salt   => node['docker-demo']['salt']['logged_in'],
+    :nonce_salt       => node['docker-demo']['salt']['nonce'],
+    :lang             => node['docker-demo']['languages']['lang'],
+    :allow_multisite  => node['docker-demo']['allow_multisite']
   )
-  owner node['dockercon-demo']['install']['user']
-  group node['dockercon-demo']['install']['group']
+  owner node['docker-demo']['install']['user']
+  group node['docker-demo']['install']['group']
   action :create
 end
 
@@ -125,9 +125,9 @@ end
 #
 web_app "wordpress" do
   template "wordpress.conf.erb"
-  docroot node['dockercon-demo']['dir']
-  server_name node['dockercon-demo']['server_name']
-  server_aliases node['dockercon-demo']['server_aliases']
+  docroot node['docker-demo']['dir']
+  server_name node['docker-demo']['server_name']
+  server_aliases node['docker-demo']['server_aliases']
   server_port node['apache']['listen_ports']
   enable true
 end
