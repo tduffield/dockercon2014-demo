@@ -1,4 +1,3 @@
-
 include_recipe "docker-demo::_setup"
 
 # Install Docker 1.0
@@ -6,7 +5,7 @@ include_recipe "docker"
 
 # Download the Docker Image
 docker_image 'chefdemo/wp_frontend' do
-  action :nothing
+  action :pull
 end
 
 # Launch the Docker Container
@@ -21,6 +20,6 @@ for i in 1..1
       "/var/run/docker.sock:/var/run/docker.sock"
     ]
 
-    action :nothing
+    action :run
   end
 end
