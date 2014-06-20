@@ -88,7 +88,7 @@ else
     db_host_ip = backend['docker_container']['host']['ipaddress']
     db_host_port = backend['docker_container']['HostConfig']['PortBindings']['3306/tcp'][0]['HostPort']
     node.default['docker-demo']['db']['host'] = "#{db_host_ip}:#{db_host_port}"
-    node.default['docker-demo']['db']['pass'] = backend['dockercon-demo']['db']['pass']
+    node.default['docker-demo']['db']['pass'] = backend['docker-demo']['db']['pass']
   end
 end
 
